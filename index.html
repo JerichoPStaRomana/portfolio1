@@ -330,7 +330,7 @@
     font-style: italic;
   }
 
-  /* ============ WORK TAB - CAROUSEL ============ */
+  /* ============ WORK TAB - 3D CAROUSEL ============ */
   .work-intro {
     text-align: center;
     max-width: 600px;
@@ -341,40 +341,47 @@
     line-height: 1.8;
   }
 
-  /* Carousel container */
-  .carousel {
+  /* 3D Carousel container */
+  .carousel-3d {
     position: relative;
-    max-width: 800px;
+    max-width: 1000px;
     margin: 0 auto 3rem;
-    padding: 0 1rem;
+    padding: 4rem 1rem;
+    perspective: 1200px;
   }
-  .carousel-viewport {
-    overflow: hidden;
-    border-radius: 4px;
-  }
-  .carousel-track {
-    display: flex;
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform;
-  }
-  .carousel-card {
-    flex: 0 0 100%;
-    min-width: 100%;
-    padding: 0 0.5rem;
-    box-sizing: border-box;
-  }
-  .carousel-card-inner {
-    background: var(--paper);
-    padding: 2.5rem 2rem;
-    border: 1px solid rgba(61, 47, 34, 0.1);
-    box-shadow: 4px 4px 0 rgba(122, 59, 59, 0.1);
+
+  .carousel-3d-viewport {
     position: relative;
-    min-height: 340px;
+    height: 420px;
+    transform-style: preserve-3d;
+  }
+
+  .carousel-3d-card {
+    position: absolute;
+    width: 320px;
+    height: 380px;
+    left: 50%;
+    top: 50%;
+    transform-style: preserve-3d;
+    transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+  }
+
+  .carousel-3d-card-inner {
+    width: 100%;
+    height: 100%;
+    background: var(--paper);
+    padding: 2.2rem 1.8rem;
+    border: 1px solid rgba(61, 47, 34, 0.1);
+    box-shadow: 0 10px 40px rgba(61, 47, 34, 0.2);
+    position: relative;
     display: flex;
     flex-direction: column;
     transition: all 0.4s ease;
+    backface-visibility: hidden;
   }
-  .carousel-card-inner::before {
+
+  .carousel-3d-card-inner::before {
     content: '';
     position: absolute;
     top: -10px; left: 30px;
@@ -383,12 +390,12 @@
     transform: rotate(-3deg);
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   }
-  .carousel-card-inner:hover {
-    transform: translateY(-4px);
-    box-shadow: 6px 8px 0 rgba(122, 59, 59, 0.15);
+
+  .carousel-3d-card.active .carousel-3d-card-inner {
+    box-shadow: 0 15px 50px rgba(61, 47, 34, 0.3);
+    background: #faf6ef;
   }
 
-  /* Card number */
   .card-number {
     position: absolute;
     top: 1.5rem;
@@ -413,28 +420,32 @@
     border: 1px dashed var(--burgundy);
     align-self: flex-start;
   }
-  .carousel-card h3 {
+
+  .carousel-3d-card h3 {
     font-family: 'Playfair Display', serif;
-    font-size: 1.6rem;
+    font-size: 1.5rem;
     font-weight: 600;
     color: var(--ink);
     margin-bottom: 0.3rem;
     line-height: 1.2;
   }
+
   .work-place {
     font-family: 'Caveat', cursive;
     color: var(--sepia);
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     margin-bottom: 1rem;
   }
-  .carousel-card p {
+
+  .carousel-3d-card p {
     color: var(--ink-soft);
-    font-size: 1rem;
-    line-height: 1.8;
+    font-size: 0.95rem;
+    line-height: 1.7;
     font-style: italic;
-    margin-bottom: 1.2rem;
+    margin-bottom: 1rem;
     flex-grow: 1;
   }
+
   .work-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
   .work-tag {
     font-family: 'Special Elite', cursive;
@@ -451,8 +462,8 @@
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 46px;
-    height: 46px;
+    width: 50px;
+    height: 50px;
     background: var(--cream);
     border: 1px solid var(--ink-soft);
     border-radius: 50%;
@@ -463,7 +474,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 5;
+    z-index: 10;
     font-family: 'Special Elite', cursive;
     box-shadow: 2px 2px 0 rgba(122, 59, 59, 0.15);
   }
@@ -476,8 +487,8 @@
     opacity: 0.3;
     cursor: not-allowed;
   }
-  .carousel-btn.prev { left: -23px; }
-  .carousel-btn.next { right: -23px; }
+  .carousel-btn.prev { left: 0; }
+  .carousel-btn.next { right: 0; }
 
   /* Carousel dots */
   .carousel-dots {
@@ -711,7 +722,16 @@
   }
 
   /* ============ RESPONSIVE ============ */
-  @media (max-width: 800px) {
+  @media (max-width: 900px) {
+    .carousel-3d-card {
+      width: 280px;
+      height: 360px;
+    }
+    .carousel-3d-card h3 { font-size: 1.3rem; }
+    .carousel-3d-card p { font-size: 0.9rem; }
+  }
+
+  @media (max-width: 700px) {
     .front-tabs { grid-template-columns: 1fr; max-width: 320px; }
     .front-tab-card:nth-child(n) { transform: rotate(0deg); }
     nav { padding: 0.8rem 4%; }
@@ -720,15 +740,21 @@
     .tab-btn { padding: 0.4rem 0.7rem; font-size: 0.8rem; }
     .pdf-frame { height: 60vh; min-height: 400px; }
 
-    .carousel-btn.prev { left: -5px; }
-    .carousel-btn.next { right: -5px; }
-    .carousel-btn { width: 40px; height: 40px; font-size: 1rem; }
-    .carousel-card-inner { padding: 2rem 1.5rem; min-height: 320px; }
-    .carousel-card h3 { font-size: 1.4rem; }
+    .carousel-3d { padding: 3rem 0.5rem; }
+    .carousel-3d-viewport { height: 380px; }
+    .carousel-3d-card {
+      width: 260px;
+      height: 340px;
+    }
+    .carousel-3d-card-inner { padding: 1.8rem 1.5rem; }
+    .carousel-3d-card h3 { font-size: 1.2rem; }
+    .carousel-3d-card p { font-size: 0.85rem; line-height: 1.6; }
+    .carousel-btn { width: 42px; height: 42px; font-size: 1rem; }
     .swipe-hint { display: block; }
     
     .contact-info { padding: 2rem 1.5rem; }
   }
+
   @media (max-width: 500px) {
     body { font-size: 16px; }
     main { padding: 100px 4% 40px; }
@@ -738,13 +764,16 @@
     .pdf-container { padding: 1rem; }
     .pdf-frame { height: 55vh; min-height: 350px; }
 
-    .carousel { padding: 0; }
-    .carousel-btn.prev { left: 5px; }
-    .carousel-btn.next { right: 5px; }
-    .carousel-btn { width: 36px; height: 36px; font-size: 0.9rem; }
-    .carousel-card-inner { padding: 1.8rem 1.2rem; min-height: 300px; }
-    .carousel-card h3 { font-size: 1.25rem; }
+    .carousel-3d { padding: 2.5rem 0.5rem; }
+    .carousel-3d-viewport { height: 360px; }
+    .carousel-3d-card {
+      width: 240px;
+      height: 320px;
+    }
+    .carousel-3d-card-inner { padding: 1.5rem 1.2rem; }
+    .carousel-3d-card h3 { font-size: 1.1rem; }
     .card-number { font-size: 2rem; top: 1rem; right: 1rem; }
+    .carousel-btn { width: 38px; height: 38px; font-size: 0.9rem; }
     
     .contact-info { padding: 1.8rem 1.2rem; }
     .contact-info h3 { font-size: 1.6rem; }
@@ -803,16 +832,16 @@
     <div class="pdf-container">
       <iframe 
         class="pdf-frame" 
-        src="resume.pdf" 
+        src="resume_jericho.pdf" 
         type="application/pdf"
         title="Jericho's Resume">
-        <p>Your browser does not support PDF viewing. Please <a href="resume.pdf" download>download the PDF</a> instead.</p>
+        <p>Your browser does not support PDF viewing. Please <a href="resume_jericho.pdf" download>download the PDF</a> instead.</p>
       </iframe>
       <div class="pdf-actions">
-        <a href="resume.pdf" download class="btn btn-primary">
+        <a href="resume_jericho.pdf" download class="btn btn-primary">
           <i class="fas fa-download"></i> Download PDF
         </a>
-        <a href="resume.pdf" target="_blank" class="btn btn-outline">
+        <a href="resume_jericho.pdf" target="_blank" class="btn btn-outline">
           <i class="fas fa-external-link-alt"></i> Open in New Tab
         </a>
       </div>
@@ -820,7 +849,7 @@
     </div>
   </section>
 
-  <!-- ============ WORK TAB (CAROUSEL) ============ -->
+  <!-- ============ WORK TAB (3D CAROUSEL) ============ -->
   <section class="tab-content" id="work">
     <div class="section-heading">
       <span class="tag">✿ my journey so far ✿</span>
@@ -828,8 +857,8 @@
     </div>
     <p class="work-intro">As a fresh IT graduate, my experience is built on academic projects, internships, and the quiet hours spent learning by doing. Flip through the pages of my story below.</p>
 
-    <!-- CAROUSEL -->
-    <div class="carousel" id="carousel">
+    <!-- 3D CAROUSEL -->
+    <div class="carousel-3d" id="carousel">
       <button class="carousel-btn prev" id="prevBtn" aria-label="Previous">
         <i class="fas fa-chevron-left"></i>
       </button>
@@ -837,74 +866,72 @@
         <i class="fas fa-chevron-right"></i>
       </button>
 
-      <div class="carousel-viewport">
-        <div class="carousel-track" id="carouselTrack">
+      <div class="carousel-3d-viewport" id="carouselViewport">
 
-          <div class="carousel-card">
-            <div class="carousel-card-inner">
-              <div class="card-number">01</div>
-              <span class="work-type">Capstone Project</span>
-              <h3>Web-Based Inventory Management System</h3>
-              <div class="work-place">~ Final Year Thesis ~</div>
-              <p>Led a team of four to design and develop an inventory system for a local business. Handled database design, backend logic, and the user interface. The system is still in use today — a quiet reminder that small things, built with care, can last.</p>
-              <div class="work-tags">
-                <span class="work-tag">PHP</span>
-                <span class="work-tag">MySQL</span>
-                <span class="work-tag">Bootstrap</span>
-                <span class="work-tag">Team Lead</span>
-              </div>
+        <div class="carousel-3d-card" data-index="0">
+          <div class="carousel-3d-card-inner">
+            <div class="card-number">01</div>
+            <span class="work-type">Capstone Project</span>
+            <h3>Web-Based Inventory Management System</h3>
+            <div class="work-place">~ Final Year Thesis ~</div>
+            <p>Led a team of four to design and develop an inventory system for a local business. Handled database design, backend logic, and the user interface. The system is still in use today — a quiet reminder that small things, built with care, can last.</p>
+            <div class="work-tags">
+              <span class="work-tag">PHP</span>
+              <span class="work-tag">MySQL</span>
+              <span class="work-tag">Bootstrap</span>
+              <span class="work-tag">Team Lead</span>
             </div>
           </div>
-
-          <div class="carousel-card">
-            <div class="carousel-card-inner">
-              <div class="card-number">02</div>
-              <span class="work-type">Internship / OJT</span>
-              <h3>IT Intern</h3>
-              <div class="work-place">~ Local Company ~</div>
-              <p>Completed 300+ hours of on-the-job training assisting with hardware troubleshooting, network setup, and basic web maintenance. Learned how real-world IT teams operate day-to-day — the kind of lessons no classroom can teach.</p>
-              <div class="work-tags">
-                <span class="work-tag">Networking</span>
-                <span class="work-tag">Hardware</span>
-                <span class="work-tag">Support</span>
-                <span class="work-tag">300+ Hours</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="carousel-card">
-            <div class="carousel-card-inner">
-              <div class="card-number">03</div>
-              <span class="work-type">Academic Project</span>
-              <h3>Student Portal Prototype</h3>
-              <div class="work-place">~ Web Development Course ~</div>
-              <p>Built a working prototype of a student portal with login, grade viewing, and class scheduling features. Focused on clean UI and responsive design for mobile and desktop — a small step toward making technology feel human.</p>
-              <div class="work-tags">
-                <span class="work-tag">HTML/CSS</span>
-                <span class="work-tag">JavaScript</span>
-                <span class="work-tag">Responsive</span>
-                <span class="work-tag">UI Design</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="carousel-card">
-            <div class="carousel-card-inner">
-              <div class="card-number">04</div>
-              <span class="work-type">Personal Project</span>
-              <h3>Personal Portfolio Website</h3>
-              <div class="work-place">~ Self-initiated ~</div>
-              <p>Designed and coded this very portfolio from scratch — a quiet love letter to the craft of web development. Built with HTML, CSS, and a touch of JavaScript. Every detail was chosen with intention.</p>
-              <div class="work-tags">
-                <span class="work-tag">HTML</span>
-                <span class="work-tag">CSS</span>
-                <span class="work-tag">JavaScript</span>
-                <span class="work-tag">Design</span>
-              </div>
-            </div>
-          </div>
-
         </div>
+
+        <div class="carousel-3d-card" data-index="1">
+          <div class="carousel-3d-card-inner">
+            <div class="card-number">02</div>
+            <span class="work-type">Internship / OJT</span>
+            <h3>IT Intern</h3>
+            <div class="work-place">~ Local Company ~</div>
+            <p>Completed 300+ hours of on-the-job training assisting with hardware troubleshooting, network setup, and basic web maintenance. Learned how real-world IT teams operate day-to-day — the kind of lessons no classroom can teach.</p>
+            <div class="work-tags">
+              <span class="work-tag">Networking</span>
+              <span class="work-tag">Hardware</span>
+              <span class="work-tag">Support</span>
+              <span class="work-tag">300+ Hours</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="carousel-3d-card" data-index="2">
+          <div class="carousel-3d-card-inner">
+            <div class="card-number">03</div>
+            <span class="work-type">Academic Project</span>
+            <h3>Student Portal Prototype</h3>
+            <div class="work-place">~ Web Development Course ~</div>
+            <p>Built a working prototype of a student portal with login, grade viewing, and class scheduling features. Focused on clean UI and responsive design for mobile and desktop — a small step toward making technology feel human.</p>
+            <div class="work-tags">
+              <span class="work-tag">HTML/CSS</span>
+              <span class="work-tag">JavaScript</span>
+              <span class="work-tag">Responsive</span>
+              <span class="work-tag">UI Design</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="carousel-3d-card" data-index="3">
+          <div class="carousel-3d-card-inner">
+            <div class="card-number">04</div>
+            <span class="work-type">Personal Project</span>
+            <h3>Personal Portfolio Website</h3>
+            <div class="work-place">~ Self-initiated ~</div>
+            <p>Designed and coded this very portfolio from scratch — a quiet love letter to the craft of web development. Built with HTML, CSS, and a touch of JavaScript. Every detail was chosen with intention.</p>
+            <div class="work-tags">
+              <span class="work-tag">HTML</span>
+              <span class="work-tag">CSS</span>
+              <span class="work-tag">JavaScript</span>
+              <span class="work-tag">Design</span>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <div class="carousel-dots" id="carouselDots"></div>
@@ -1009,9 +1036,8 @@
   }
   tabBtns.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
 
-  /* ============ CAROUSEL ============ */
-  const track = document.getElementById('carouselTrack');
-  const cards = track.querySelectorAll('.carousel-card');
+  /* ============ 3D CAROUSEL ============ */
+  const cards = document.querySelectorAll('.carousel-3d-card');
   const prevBtn = document.getElementById('prevBtn');
   const nextBtn = document.getElementById('nextBtn');
   const dotsContainer = document.getElementById('carouselDots');
@@ -1033,7 +1059,60 @@
   const dots = dotsContainer.querySelectorAll('.carousel-dot');
 
   function updateCarousel() {
-    track.style.transform = `translateX(-${currentIndex * 100}%)`;
+    const viewportWidth = document.getElementById('carouselViewport').offsetWidth;
+    const centerX = viewportWidth / 2;
+    
+    cards.forEach((card, index) => {
+      const offset = index - currentIndex;
+      let translateX = 0;
+      let translateZ = 0;
+      let rotateY = 0;
+      let scale = 1;
+      let opacity = 1;
+      let zIndex = 0;
+
+      if (offset === 0) {
+        // Active card - center
+        translateX = -160; // half of card width (320px / 2)
+        translateZ = 0;
+        rotateY = 0;
+        scale = 1;
+        opacity = 1;
+        zIndex = 5;
+        card.classList.add('active');
+      } else if (Math.abs(offset) === 1) {
+        // Adjacent cards
+        translateX = offset > 0 ? 180 : -500;
+        translateZ = -150;
+        rotateY = offset > 0 ? -25 : 25;
+        scale = 0.85;
+        opacity = 0.7;
+        zIndex = 3;
+        card.classList.remove('active');
+      } else if (Math.abs(offset) === 2) {
+        // Two cards away
+        translateX = offset > 0 ? 350 : -670;
+        translateZ = -300;
+        rotateY = offset > 0 ? -35 : 35;
+        scale = 0.7;
+        opacity = 0.4;
+        zIndex = 1;
+        card.classList.remove('active');
+      } else {
+        // Hidden cards
+        translateX = offset > 0 ? 600 : -800;
+        translateZ = -400;
+        scale = 0.6;
+        opacity = 0;
+        zIndex = 0;
+        card.classList.remove('active');
+      }
+
+      card.style.transform = `translate(-50%, -50%) translateX(${translateX}px) translateZ(${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`;
+      card.style.opacity = opacity;
+      card.style.zIndex = zIndex;
+    });
+
     dots.forEach((d, i) => d.classList.toggle('active', i === currentIndex));
     currentNum.textContent = String(currentIndex + 1).padStart(2, '0');
     prevBtn.disabled = currentIndex === 0;
@@ -1048,6 +1127,15 @@
   prevBtn.addEventListener('click', () => goToSlide(currentIndex - 1));
   nextBtn.addEventListener('click', () => goToSlide(currentIndex + 1));
 
+  // Click on card to navigate
+  cards.forEach((card, index) => {
+    card.addEventListener('click', () => {
+      if (index !== currentIndex) {
+        goToSlide(index);
+      }
+    });
+  });
+
   // Keyboard navigation (arrow keys)
   document.addEventListener('keydown', (e) => {
     const workTab = document.getElementById('work');
@@ -1059,7 +1147,7 @@
   // Touch / Swipe support
   let touchStartX = 0;
   let touchEndX = 0;
-  const viewport = document.querySelector('.carousel-viewport');
+  const viewport = document.querySelector('.carousel-3d-viewport');
 
   viewport.addEventListener('touchstart', (e) => {
     touchStartX = e.changedTouches[0].screenX;
@@ -1074,12 +1162,17 @@
     const diff = touchStartX - touchEndX;
     const threshold = 50;
     if (Math.abs(diff) < threshold) return;
-    if (diff > 0) goToSlide(currentIndex + 1);  // swipe left = next
-    else goToSlide(currentIndex - 1);            // swipe right = prev
+    if (diff > 0) goToSlide(currentIndex + 1);
+    else goToSlide(currentIndex - 1);
   }
 
   // Initialize
   updateCarousel();
+
+  // Update on resize
+  window.addEventListener('resize', () => {
+    updateCarousel();
+  });
 </script>
 </body>
 </html>
