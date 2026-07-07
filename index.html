@@ -685,7 +685,13 @@
     transform: translateY(-2px);
   }
 
-  .slider-wrap{ position: relative; padding: 2rem 0 1rem 0; }
+  /* ===== IMPROVED SLIDER STYLES ===== */
+  .slider-wrap{ 
+    position: relative; 
+    padding: 2rem 0 1rem 0; 
+    user-select: none;
+    -webkit-user-select: none;
+  }
   .slider-stage{
     position: relative;
     height: 400px;
@@ -693,6 +699,16 @@
     display:flex;
     align-items:center;
     justify-content:center;
+    touch-action: pan-y; /* Allow vertical scroll, block horizontal */
+    cursor: grab;
+    overflow: hidden;
+    padding: 0 1rem;
+  }
+  .slider-stage.dragging{
+    cursor: grabbing;
+  }
+  .slider-stage.dragging .work-card{
+    transition: none !important; /* Disable transitions while dragging */
   }
   .work-card{
     position: absolute;
@@ -704,6 +720,8 @@
     transition: transform 0.6s cubic-bezier(.2,.7,.3,1), opacity 0.6s ease, box-shadow 0.6s ease;
     box-shadow: var(--card-shadow);
     cursor: none;
+    will-change: transform, opacity;
+    backface-visibility: hidden;
   }
   .work-card:hover{ box-shadow: 0 30px 80px -20px rgba(30,36,48,0.35); }
   .work-card .eyebrow{ display:block; margin-bottom: 0.9rem; }
@@ -729,26 +747,69 @@
     margin-top: 2rem;
   }
   .slider-arrow{
-    width: 42px; height: 42px;
+    width: 48px; 
+    height: 48px;
     border-radius: 50%;
     border: 1px solid var(--line);
     background: var(--bg);
     display:flex; align-items:center; justify-content:center;
     cursor: none;
-    transition: border-color 0.3s ease, transform 0.3s ease;
+    transition: border-color 0.3s ease, transform 0.3s ease, background 0.3s ease;
   }
-  .slider-arrow:hover{ border-color: var(--accent); transform: translateY(-2px); }
-  .slider-arrow svg{ width:16px; height:16px; }
+  .slider-arrow:hover{ 
+    border-color: var(--accent); 
+    background: var(--bg-alt);
+    transform: translateY(-2px); 
+  }
+  .slider-arrow svg{ width:18px; height:18px; }
 
-  .slider-dots{ display:flex; gap: 0.5rem; }
+  .slider-dots{ display:flex; gap: 0.6rem; }
   .dot{
-    width: 7px; height: 7px;
+    width: 10px; 
+    height: 10px;
     border-radius: 50%;
     background: var(--line);
     cursor: none;
     transition: background 0.3s ease, transform 0.3s ease;
+    padding: 0;
+    border: none;
   }
-  .dot.active{ background: var(--accent); transform: scale(1.3); }
+  .dot:hover{ background: var(--accent-soft); }
+  .dot.active{ background: var(--accent); transform: scale(1.4); }
+
+  /* Swipe hint for mobile */
+  .swipe-hint{
+    display: none;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    opacity: 0.6;
+    margin-top: 1rem;
+    animation: fadeInUp 0.6s ease 0.5s both;
+  }
+  .swipe-hint::before{
+    content: '←';
+    display: inline-block;
+    margin-right: 0.5rem;
+    animation: swipeHintLeft 2s ease-in-out infinite;
+  }
+  .swipe-hint::after{
+    content: '→';
+    display: inline-block;
+    margin-left: 0.5rem;
+    animation: swipeHintRight 2s ease-in-out infinite;
+  }
+  @keyframes swipeHintLeft{
+    0%, 100%{ transform: translateX(0); }
+    50%{ transform: translateX(-4px); }
+  }
+  @keyframes swipeHintRight{
+    0%, 100%{ transform: translateX(0); }
+    50%{ transform: translateX(4px); }
+  }
 
   .contact-grid{
     display:grid;
@@ -884,6 +945,7 @@
     font-family: inherit;
   }
 
+  /* ===== RESPONSIVE MEDIA QUERIES ===== */
   @media (max-width: 720px){
     .hero-top{ flex-direction: column; align-items:flex-start; }
     .logo-tabs-wrap { 
@@ -903,12 +965,71 @@
     .logo-stage{ width: 200px; height: 200px; }
     .logo-mark{ width: 180px; height: 180px; }
     .resume-card{ flex-direction: column; align-items:flex-start; }
-    .slider-stage{ height: 460px; }
-    .work-card{ min-height: 380px; }
+    
+    /* Mobile slider improvements */
+    .slider-stage{ 
+      height: 440px; 
+      perspective: 1000px;
+      padding: 0 0.5rem;
+    }
+    .work-card{ 
+      min-height: 340px;
+      padding: 1.6rem 1.4rem;
+      width: min(380px, 88vw);
+    }
+    .work-card h3{ font-size: 1.15rem; }
+    .work-card p{ font-size: 0.88rem; }
+    .work-card .role-co{ font-size: 0.8rem; }
+    
+    .slider-arrow{ 
+      width: 44px; 
+      height: 44px;
+    }
+    .slider-arrow svg{ width:16px; height:16px; }
+    .dot{ width: 9px; height: 9px; }
+    
+    .swipe-hint{ display: block; }
+    
     .pdf-embed-frame{ height: 60vh; min-height: 400px; }
     .sub-page-header{ gap: 0.8rem; }
     .sub-tab{ padding: 0.6rem 0.9rem; font-size: 0.65rem; }
     .shortcuts-hint{ display: none; }
+    .panel-sub{ font-size: 0.92rem; }
+  }
+
+  /* Extra small screens */
+  @media (max-width: 420px){
+    .slider-stage{ 
+      height: 420px;
+      perspective: 900px;
+    }
+    .work-card{
+      width: 90vw;
+      min-height: 320px;
+      padding: 1.4rem 1.2rem;
+    }
+    .work-card h3{ font-size: 1.05rem; }
+    .work-card p{ font-size: 0.85rem; line-height: 1.55; }
+    .work-card .role-co{ font-size: 0.75rem; margin-bottom: 0.8rem; }
+    .work-card .eyebrow{ font-size: 0.65rem; margin-bottom: 0.7rem; }
+    
+    .slider-nav{ gap: 1rem; }
+    .slider-arrow{ width: 42px; height: 42px; }
+    .slider-dots{ gap: 0.5rem; }
+    .dot{ width: 8px; height: 8px; }
+    
+    .panel-heading{ font-size: 1.5rem; }
+  }
+
+  /* Landscape mobile */
+  @media (max-width: 720px) and (orientation: landscape){
+    .slider-stage{ height: 320px; }
+    .work-card{ min-height: 260px; }
+  }
+
+  /* Reduced motion for mobile */
+  @media (max-width: 720px) and (prefers-reduced-motion: reduce){
+    .work-card{ transition: opacity 0.3s ease; }
   }
 </style>
 </head>
@@ -1061,10 +1182,11 @@
     <div class="panel-content">
       <span class="eyebrow">02 / Work</span>
       <h2 class="panel-heading">Experience</h2>
-      <p class="panel-sub">Drag through the cards or use the arrows. Each card is one role — edit the text to match your own history.</p>
+      <p class="panel-sub">Swipe through the cards or use the arrows. Each card is one role — edit the text to match your own history.</p>
 
       <div class="slider-wrap">
         <div class="slider-stage" id="slider-stage"></div>
+        <div class="swipe-hint">Swipe to navigate</div>
         <div class="slider-nav">
           <button class="slider-arrow" id="prev-arrow" aria-label="Previous">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
@@ -1352,7 +1474,7 @@
     flipCard.style.transform = '';
   });
 
-  /* Work experience */
+  /* ===== IMPROVED WORK EXPERIENCE SLIDER WITH TOUCH/DRAG SUPPORT ===== */
   const jobs = [
     { eyebrow: "2023 — Present", title: "Senior Product Designer", company: "Company Name · City", desc: "Led end-to-end design for the core product, partnering with engineering and research to ship features used by thousands of people weekly." },
     { eyebrow: "2021 — 2023", title: "UI/UX Designer", company: "Company Name · City", desc: "Owned the design system and mentored two junior designers, reducing handoff time between design and engineering by half." },
@@ -1366,6 +1488,51 @@
   const dotsWrap = document.getElementById('slider-dots');
   let current = 0;
 
+  // Drag/Swipe state
+  let isDragging = false;
+  let startX = 0;
+  let startY = 0;
+  let currentTranslate = 0;
+  let dragStartTime = 0;
+  let isHorizontalSwipe = null; // null = undetermined, true = horizontal, false = vertical
+  const SWIPE_THRESHOLD = 50; // pixels
+  const VELOCITY_THRESHOLD = 0.3; // pixels per ms
+
+  function getResponsiveParams() {
+    const w = window.innerWidth;
+    if (w <= 420) {
+      return {
+        translateMultiplier: 70,   // % offset for adjacent cards
+        farTranslate: 95,
+        zBack: -120,
+        zFar: -240,
+        rotateY: 22,
+        rotateYFar: 26,
+        cardWidth: w * 0.9
+      };
+    } else if (w <= 720) {
+      return {
+        translateMultiplier: 65,
+        farTranslate: 90,
+        zBack: -140,
+        zFar: -280,
+        rotateY: 25,
+        rotateYFar: 30,
+        cardWidth: Math.min(380, w * 0.88)
+      };
+    } else {
+      return {
+        translateMultiplier: 62,
+        farTranslate: 90,
+        zBack: -160,
+        zFar: -320,
+        rotateY: 28,
+        rotateYFar: 32,
+        cardWidth: Math.min(430, w * 0.78)
+      };
+    }
+  }
+
   function renderCards(){
     stage.innerHTML = '';
     dotsWrap.innerHTML = '';
@@ -1374,33 +1541,46 @@
       card.className = 'work-card';
       card.innerHTML = `<span class="eyebrow">${job.eyebrow}</span><h3>${job.title}</h3><p class="role-co">${job.company}</p><p>${job.desc}</p>`;
       stage.appendChild(card);
-      const dot = document.createElement('div');
+      
+      const dot = document.createElement('button');
       dot.className = 'dot' + (i===0 ? ' active' : '');
+      dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
       dot.addEventListener('click', ()=>{ current = i; update(); });
       dotsWrap.appendChild(dot);
     });
     update();
   }
 
-  function update(){
+  function update(translateOffset = 0){
     const cards = stage.querySelectorAll('.work-card');
     const dots = dotsWrap.querySelectorAll('.dot');
+    const params = getResponsiveParams();
+    
     cards.forEach((card, i)=>{
       let offset = i - current;
       const total = cards.length;
       if(offset > total/2) offset -= total;
       if(offset < -total/2) offset += total;
       const abs = Math.abs(offset);
+      
+      // Apply drag offset only to visible cards
+      const dragEffect = translateOffset * (abs === 0 ? 1 : abs === 1 ? 0.6 : 0.3);
+      
       if(abs === 0){
-        card.style.transform = `translateX(0) translateZ(0) rotateY(0deg)`;
+        card.style.transform = `translateX(${dragEffect}px) translateZ(0) rotateY(0deg) scale(${translateOffset !== 0 ? 0.97 : 1})`;
         card.style.opacity = '1';
         card.style.zIndex = 5;
       } else if(abs === 1){
-        card.style.transform = `translateX(${offset*62}%) translateZ(-160px) rotateY(${offset*-28}deg)`;
+        const direction = offset > 0 ? 1 : -1;
+        const baseX = direction * params.translateMultiplier;
+        // During drag, reduce the offset of side cards (rubber band)
+        const adjustedX = baseX + (dragEffect / stage.offsetWidth * 100 * 0.3);
+        card.style.transform = `translateX(${adjustedX}%) translateZ(${params.zBack}px) rotateY(${direction * -params.rotateY}deg)`;
         card.style.opacity = '0.55';
         card.style.zIndex = 3;
       } else {
-        card.style.transform = `translateX(${offset*90}%) translateZ(-320px) rotateY(${offset*-32}deg)`;
+        const direction = offset > 0 ? 1 : -1;
+        card.style.transform = `translateX(${direction * params.farTranslate}%) translateZ(${params.zFar}px) rotateY(${direction * -params.rotateYFar}deg)`;
         card.style.opacity = '0';
         card.style.zIndex = 1;
       }
@@ -1408,13 +1588,143 @@
     dots.forEach((d,i)=>d.classList.toggle('active', i===current));
   }
 
-  document.getElementById('prev-arrow').addEventListener('click', ()=>{ current = (current - 1 + jobs.length) % jobs.length; update(); });
-  document.getElementById('next-arrow').addEventListener('click', ()=>{ current = (current + 1) % jobs.length; update(); });
+  function goTo(direction){
+    current = (current + direction + jobs.length) % jobs.length;
+    update();
+  }
 
+  // Arrow buttons
+  document.getElementById('prev-arrow').addEventListener('click', ()=> goTo(-1));
+  document.getElementById('next-arrow').addEventListener('click', ()=> goTo(1));
+
+  // Keyboard navigation
   document.addEventListener('keydown', (e)=>{
     if(!document.getElementById('page-work').classList.contains('active')) return;
-    if(e.key === 'ArrowLeft') document.getElementById('prev-arrow').click();
-    if(e.key === 'ArrowRight') document.getElementById('next-arrow').click();
+    if(e.key === 'ArrowLeft') goTo(-1);
+    if(e.key === 'ArrowRight') goTo(1);
+  });
+
+  /* ===== TOUCH / DRAG HANDLING ===== */
+  function getClientX(e){
+    if (e.touches && e.touches.length > 0) return e.touches[0].clientX;
+    if (e.changedTouches && e.changedTouches.length > 0) return e.changedTouches[0].clientX;
+    return e.clientX;
+  }
+  function getClientY(e){
+    if (e.touches && e.touches.length > 0) return e.touches[0].clientY;
+    if (e.changedTouches && e.changedTouches.length > 0) return e.changedTouches[0].clientY;
+    return e.clientY;
+  }
+
+  function onDragStart(e){
+    // Don't interfere with buttons/links inside cards
+    if (e.target.closest('button, a')) return;
+    
+    isDragging = true;
+    startX = getClientX(e);
+    startY = getClientY(e);
+    dragStartTime = Date.now();
+    currentTranslate = 0;
+    isHorizontalSwipe = null;
+    stage.classList.add('dragging');
+  }
+
+  function onDragMove(e){
+    if (!isDragging) return;
+    
+    const currentX = getClientX(e);
+    const currentY = getClientY(e);
+    const deltaX = currentX - startX;
+    const deltaY = currentY - startY;
+    
+    // Determine swipe direction on first significant movement
+    if (isHorizontalSwipe === null && (Math.abs(deltaX) > 8 || Math.abs(deltaY) > 8)) {
+      isHorizontalSwipe = Math.abs(deltaX) > Math.abs(deltaY);
+    }
+    
+    // Only handle horizontal swipes
+    if (isHorizontalSwipe === false) {
+      isDragging = false;
+      stage.classList.remove('dragging');
+      update();
+      return;
+    }
+    
+    if (isHorizontalSwipe) {
+      // Prevent page scroll during horizontal swipe
+      if (e.cancelable) e.preventDefault();
+      
+      // Rubber band effect at edges
+      const atStart = current === 0 && deltaX > 0;
+      const atEnd = current === jobs.length - 1 && deltaX < 0;
+      
+      if (atStart || atEnd) {
+        currentTranslate = deltaX * 0.3; // Rubber band resistance
+      } else {
+        currentTranslate = deltaX;
+      }
+      
+      update(currentTranslate);
+    }
+  }
+
+  function onDragEnd(e){
+    if (!isDragging) return;
+    isDragging = false;
+    stage.classList.remove('dragging');
+    
+    const deltaX = currentTranslate;
+    const timeElapsed = Math.max(Date.now() - dragStartTime, 1);
+    const velocity = Math.abs(deltaX) / timeElapsed;
+    
+    // Determine if swipe should trigger navigation
+    const shouldNavigate = 
+      Math.abs(deltaX) > SWIPE_THRESHOLD || 
+      velocity > VELOCITY_THRESHOLD;
+    
+    if (shouldNavigate && Math.abs(deltaX) > 10) {
+      if (deltaX < 0) {
+        // Swipe left → next
+        goTo(1);
+      } else {
+        // Swipe right → previous
+        goTo(-1);
+      }
+    } else {
+      // Snap back
+      update();
+    }
+    
+    currentTranslate = 0;
+    isHorizontalSwipe = null;
+  }
+
+  // Touch events
+  stage.addEventListener('touchstart', onDragStart, { passive: true });
+  stage.addEventListener('touchmove', onDragMove, { passive: false });
+  stage.addEventListener('touchend', onDragEnd, { passive: true });
+  stage.addEventListener('touchcancel', onDragEnd, { passive: true });
+
+  // Mouse drag events (for desktop)
+  stage.addEventListener('mousedown', (e) => {
+    if (e.button !== 0) return; // Only left click
+    onDragStart(e);
+  });
+  window.addEventListener('mousemove', (e) => {
+    if (isDragging) onDragMove(e);
+  });
+  window.addEventListener('mouseup', (e) => {
+    if (isDragging) onDragEnd(e);
+  });
+
+  // Prevent image/link dragging
+  stage.addEventListener('dragstart', (e) => e.preventDefault());
+
+  // Handle window resize
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => update(), 100);
   });
 
   renderCards();
@@ -1497,6 +1807,6 @@
     }
   });
 </script>
-
 </body>
+
 </html>
