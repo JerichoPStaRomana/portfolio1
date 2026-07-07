@@ -34,6 +34,19 @@
     cursor: none;
   }
 
+  /* Subtle grain texture */
+  body::before{
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9997;
+    opacity: 0.03;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Custom cursor */
   .cursor{
     position: fixed;
     width: var(--cursor-size);
@@ -42,7 +55,7 @@
     border-radius: 50%;
     pointer-events: none;
     z-index: 9999;
-    transition: transform 0.15s ease, width 0.3s ease, height 0.3s ease, border-color 0.3s ease;
+    transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease, background 0.3s ease;
     transform: translate(-50%, -50%);
     mix-blend-mode: difference;
   }
@@ -79,6 +92,7 @@
     padding: 0 clamp(1.25rem, 4vw, 3rem);
   }
 
+  /* Loading screen */
   .loader{
     position: fixed;
     inset: 0;
@@ -125,6 +139,7 @@
   @keyframes loaderReveal{ to{ opacity: 1; transform: translateY(0); } }
   @keyframes loaderBar{ 0%{ transform: scaleX(0); } 100%{ transform: scaleX(1); } }
 
+  /* Scroll progress */
   .scroll-progress{
     position: fixed;
     top: 0;
@@ -136,6 +151,7 @@
     transition: width 0.1s ease;
   }
 
+  /* Background orbs */
   .bg-decor{
     position: fixed;
     inset: 0;
@@ -143,29 +159,31 @@
     z-index: 0;
     overflow: hidden;
   }
-  .bg-decor::before,
+  .bg-decor::before{
+    content: '';
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.25;
+    background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
+    top: -200px;
+    right: -150px;
+    animation: floatBg 25s ease-in-out infinite;
+  }
   .bg-decor::after{
     content: '';
     position: absolute;
+    width: 450px;
+    height: 450px;
     border-radius: 50%;
     filter: blur(100px);
-    opacity: 0.3;
-  }
-  .bg-decor::before{
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
-    top: -200px;
-    right: -100px;
-    animation: floatBg 20s ease-in-out infinite;
-  }
-  .bg-decor::after{
-    width: 400px;
-    height: 400px;
+    opacity: 0.2;
     background: radial-gradient(circle, var(--sage) 0%, transparent 70%);
     bottom: -150px;
     left: -100px;
-    animation: floatBg 25s ease-in-out infinite reverse;
+    animation: floatBg 30s ease-in-out infinite reverse;
   }
 
   @keyframes floatBg{
@@ -175,6 +193,7 @@
 
   .hero, .sub-page, footer{ position: relative; z-index: 1; }
 
+  /* Hero */
   .hero{
     min-height: 92vh;
     display: flex;
@@ -189,25 +208,41 @@
     display:flex;
     justify-content: space-between;
     align-items: center;
-    gap: 2rem;
+    gap: 3rem;
     flex-wrap: wrap;
   }
 
   .name-block{
-    max-width: 400px;
+    max-width: 500px;
     opacity: 0;
     animation: fadeInUp 0.8s cubic-bezier(.2,.7,.3,1) 0.2s forwards;
   }
 
-  .name-block .eyebrow{ margin-bottom: 0.9rem; display:block; }
+  .name-block .eyebrow{ 
+    margin-bottom: 1.2rem; 
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .name-block .eyebrow::before{
+    content: '';
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+    animation: lineGrow 0.8s cubic-bezier(.2,.7,.3,1) 0.4s backwards;
+  }
+  @keyframes lineGrow{
+    from{ transform: scaleX(0); transform-origin: left; }
+    to{ transform: scaleX(1); transform-origin: left; }
+  }
 
   .name{
     font-family: 'Fraunces', serif;
     font-weight: 500;
-    font-size: clamp(2.6rem, 6.5vw, 4.6rem);
+    font-size: clamp(2.8rem, 7vw, 5rem);
     line-height: 1.02;
-    letter-spacing: -0.01em;
-    margin: 0 0 1rem 0;
+    letter-spacing: -0.02em;
+    margin: 0 0 1.4rem 0;
   }
   .name em{
     font-style: italic;
@@ -226,13 +261,28 @@
   }
 
   .tagline{
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     color: var(--ink-soft);
     max-width: 480px;
     line-height: 1.6;
-    margin: 0;
+    margin: 0 0 1.5rem 0;
   }
 
+  .intro-text{
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    line-height: 1.7;
+    max-width: 480px;
+    margin: 0;
+    opacity: 0;
+    animation: fadeInUp 0.8s cubic-bezier(.2,.7,.3,1) 0.6s forwards;
+  }
+  .intro-text strong{
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  /* Logo + tabs */
   .logo-tabs-wrap {
     display: flex;
     align-items: center;
@@ -244,15 +294,19 @@
 
   .logo-stage{
     position: relative;
-    width: 300px;
-    height: 300px;
+    width: 220px;
+    height: 220px;
     flex-shrink: 0;
     perspective: 900px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
+
+  /* Single flip card — centered */
   .logo-mark{
-    position:absolute;
-    width: 170px;
-    height: 170px;
+    width: 200px;
+    height: 200px;
     border-radius: 50%;
     display:flex;
     align-items:center;
@@ -265,7 +319,8 @@
     will-change: transform;
     overflow: hidden;
     opacity: 0;
-    animation: logoEntrance 1s cubic-bezier(.2,.7,.3,1) forwards;
+    animation: logoEntrance 1s cubic-bezier(.2,.7,.3,1) forwards, floatSingle 6s ease-in-out infinite 1.6s;
+    cursor: none;
   }
   .logo-mark img{
     width: 100%;
@@ -273,19 +328,18 @@
     object-fit: cover;
     transition: transform 0.8s cubic-bezier(.2,.7,.3,1);
   }
-  .logo-a{ 
-    top: 8px; 
-    left: 8px; 
-    z-index: 2; 
-    animation: logoEntrance 1s cubic-bezier(.2,.7,.3,1) 0.6s forwards, floatA 6s ease-in-out infinite 1.6s;
-    cursor: none;
+
+  .logo-stage:hover .logo-mark{
+    transform: scale(1.05) rotateY(8deg) rotateX(-4deg);
+    box-shadow: 0 24px 60px -20px rgba(30,36,48,0.45);
   }
-  .logo-b{ 
-    bottom: 8px; 
-    right: 8px; 
-    z-index: 1; 
-    background: var(--bg);
-    animation: logoEntrance 1s cubic-bezier(.2,.7,.3,1) 0.8s forwards, floatB 6s ease-in-out infinite 1.8s;
+  .logo-stage:hover .logo-mark img{
+    transform: scale(1.1);
+  }
+
+  @keyframes floatSingle{
+    0%, 100%{ transform: translate3d(0, 0, 0); }
+    50%{ transform: translate3d(0, -10px, 0); }
   }
 
   .flip-card-inner {
@@ -296,7 +350,7 @@
     transform-style: preserve-3d;
   }
 
-  .logo-a.flipped .flip-card-inner { transform: rotateY(180deg); }
+  .logo-mark.flipped .flip-card-inner { transform: rotateY(180deg); }
 
   .flip-front, .flip-back {
     position: absolute;
@@ -322,28 +376,13 @@
     border-radius: 50%;
   }
 
-  .logo-stage:hover .logo-a img{ transform: scale(1.15); }
-  .logo-stage:hover .logo-a{
-    transform: translate3d(-44px,-30px,40px) rotateY(24deg) rotateZ(-6deg);
-    box-shadow: 0 20px 50px -20px rgba(30,36,48,0.45);
-  }
-  .logo-stage:hover .logo-b{
-    transform: translate3d(44px,30px,-10px) rotateY(-24deg) rotateZ(6deg);
-    box-shadow: 0 20px 50px -20px rgba(30,36,48,0.45);
-  }
-  .logo-stage:hover .logo-a.flipped{
-    transform: translate3d(-44px,-30px,40px) rotateY(204deg) rotateZ(-6deg);
-    box-shadow: 0 20px 50px -20px rgba(30,36,48,0.45);
-  }
-  .logo-stage:hover .logo-a.flipped img{ transform: scale(1); }
-
   .front-tabs { display: flex; flex-direction: column; gap: 0.8rem; }
 
   .front-tab-btn {
     background: none;
     border: 1px solid var(--line);
     cursor: none;
-    padding: 0.75rem 1.5rem;
+    padding: 0.85rem 1.5rem;
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.75rem;
     letter-spacing: 0.14em;
@@ -351,11 +390,35 @@
     color: var(--ink-soft);
     transition: all 0.3s ease;
     text-align: left;
-    min-width: 140px;
+    min-width: 180px;
     opacity: 0;
     animation: slideInRight 0.6s cubic-bezier(.2,.7,.3,1) forwards;
     position: relative;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .front-tab-btn .tab-label{
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  .front-tab-btn .tab-num{
+    font-size: 0.65rem;
+    color: var(--accent);
+    opacity: 0.6;
+  }
+  .front-tab-btn .tab-arrow{
+    width: 14px;
+    height: 14px;
+    transition: transform 0.3s ease;
+    opacity: 0.6;
+  }
+  .front-tab-btn:hover .tab-arrow{
+    transform: translateX(4px);
+    opacity: 1;
   }
   .front-tab-btn::before{
     content: '';
@@ -385,19 +448,12 @@
     from{ opacity:0; transform: scale(0.5) translateY(30px); }
     to{ opacity:1; transform: scale(1) translateY(0); }
   }
-  @keyframes floatA{
-    0%, 100%{ transform: translate3d(0, 0, 0); }
-    50%{ transform: translate3d(0, -8px, 0); }
-  }
-  @keyframes floatB{
-    0%, 100%{ transform: translate3d(0, 0, 0); }
-    50%{ transform: translate3d(0, 8px, 0); }
-  }
   @keyframes slideInRight{
     from{ opacity:0; transform: translateX(-20px); }
     to{ opacity:1; transform: translateX(0); }
   }
 
+  /* Sub pages */
   .sub-page { display: none; padding: 2rem 0 6rem 0; min-height: 80vh; }
   .sub-page.active { display: block; animation: fadeUp 0.55s cubic-bezier(.2,.7,.3,1); }
 
@@ -498,6 +554,7 @@
   .stagger-in > *:nth-child(4){ animation-delay: 0.4s; }
   .stagger-in > *:nth-child(5){ animation-delay: 0.5s; }
   .stagger-in > *:nth-child(6){ animation-delay: 0.6s; }
+  .stagger-in > *:nth-child(7){ animation-delay: 0.7s; }
 
   .resume-card{
     display:flex;
@@ -842,8 +899,8 @@
       gap: 0.5rem;
     }
     .front-tab-btn { flex: 1 1 auto; text-align: center; min-width: 0; }
-    .logo-stage{ width: 260px; height: 260px; }
-    .logo-mark{ width: 140px; height: 140px; }
+    .logo-stage{ width: 200px; height: 200px; }
+    .logo-mark{ width: 180px; height: 180px; }
     .resume-card{ flex-direction: column; align-items:flex-start; }
     .slider-stage{ height: 460px; }
     .work-card{ min-height: 380px; }
@@ -873,17 +930,20 @@
   <section class="hero active" id="front-page">
     <div class="hero-top">
       <div class="name-block">
-        <span class="eyebrow">Portfolio</span>
+        <span class="eyebrow">Portfolio · 2026</span>
         <h1 class="name" id="name-title">Jericho  <em>P.</em> Sta. Romana</h1>
-        <p class="tagline">A short line about what you do and the kind of work you love making. Edit this tagline to fit your voice.</p>
+        <p class="tagline">Crafting interfaces, experiences, and identities that feel intentional.</p>
+        <p class="intro-text">
+          I'm a <strong>designer & developer</strong> based in the Philippines, focused on building thoughtful digital products — where every pixel, interaction, and word serves a purpose.
+        </p>
       </div>
 
       <div class="logo-tabs-wrap">
         <div class="logo-stage" id="logo-stage" aria-hidden="false">
-          <div class="logo-mark logo-a" id="flip-card-a">
+          <div class="logo-mark" id="flip-card-a">
             <div class="flip-card-inner">
               <div class="flip-front">
-                <img src="https://github.com/JerichoPStaRomana/portfolio1/blob/main/pic1.jpg?raw=true" alt="Logo 1">
+                <img src="C:\Users\jeric\Downloads\pic1.jpg" alt="Logo 1">
               </div>
               <div class="flip-back">
                 <video src="profile.mp4" muted loop playsinline></video>
@@ -893,9 +953,27 @@
         </div>
 
         <nav class="front-tabs" aria-label="Section navigation">
-          <button class="front-tab-btn" data-target="resume">Resume</button>
-          <button class="front-tab-btn" data-target="work">Work</button>
-          <button class="front-tab-btn" data-target="contact">Contact</button>
+          <button class="front-tab-btn" data-target="resume">
+            <span class="tab-label">
+              <span class="tab-num">01</span>
+              <span>Resume</span>
+            </span>
+            <svg class="tab-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+          <button class="front-tab-btn" data-target="work">
+            <span class="tab-label">
+              <span class="tab-num">02</span>
+              <span>Work</span>
+            </span>
+            <svg class="tab-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+          <button class="front-tab-btn" data-target="contact">
+            <span class="tab-label">
+              <span class="tab-num">03</span>
+              <span>Contact</span>
+            </span>
+            <svg class="tab-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
         </nav>
       </div>
     </div>
@@ -1050,11 +1128,9 @@
       </div>
 
       <form class="contact-form" id="contact-form">
-        <!-- ✅ Web3Forms Access Key — Already configured -->
         <input type="hidden" name="access_key" id="web3forms-key" value="a8d7294a-772e-42ca-ba31-5351f4c4059b">
         <input type="hidden" name="subject" value="New Portfolio Message">
         <input type="hidden" name="from_name" value="Portfolio Contact Form">
-        <!-- Honeypot anti-spam -->
         <input type="checkbox" name="botcheck" style="display:none;">
 
         <div class="form-group">
@@ -1095,18 +1171,16 @@
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  /* ============ WEB3FORMS CONFIG ============ */
   const WEB3FORMS_API_URL = 'https://api.web3forms.com/submit';
   const YOUR_EMAIL = 'jerichopantilgan@gmail.com';
 
-  /* ============ LOADING SCREEN ============ */
   window.addEventListener('load', () => {
     setTimeout(() => {
       document.getElementById('loader').classList.add('hidden');
     }, 2000);
   });
 
-  /* ============ CUSTOM CURSOR ============ */
+  /* Custom cursor */
   const cursor = document.getElementById('cursor');
   let mouseX = 0, mouseY = 0;
   let cursorX = 0, cursorY = 0;
@@ -1131,7 +1205,7 @@
     el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
   });
 
-  /* ============ SCROLL PROGRESS ============ */
+  /* Scroll progress */
   window.addEventListener('scroll', () => {
     const scrollTop = window.scrollY;
     const docHeight = document.documentElement.scrollHeight - window.innerHeight;
@@ -1139,7 +1213,7 @@
     document.getElementById('scroll-progress').style.width = scrollPercent + '%';
   });
 
-  /* ============ NAME TEXT REVEAL ============ */
+  /* Name reveal */
   const nameTitle = document.getElementById('name-title');
   const nameHTML = nameTitle.innerHTML;
   let charIndex = 0;
@@ -1164,7 +1238,7 @@
   }
   nameTitle.innerHTML = result;
 
-  /* ============ PAGE NAVIGATION ============ */
+  /* Page navigation */
   const frontPage = document.getElementById('front-page');
   const subPages = document.querySelectorAll('.sub-page');
   const frontTabBtns = document.querySelectorAll('.front-tab-btn');
@@ -1217,7 +1291,7 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', loadSavedPage);
   else loadSavedPage();
 
-  /* ============ KEYBOARD SHORTCUTS ============ */
+  /* Keyboard shortcuts */
   document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
     if (e.key === 'r' || e.key === 'R') { e.preventDefault(); showPage('resume'); }
@@ -1226,7 +1300,7 @@
     else if (e.key === 'Escape') { e.preventDefault(); showPage('front'); }
   });
 
-  /* ============ FLIP CARD ============ */
+  /* Flip card — single circle */
   const flipCard = document.getElementById('flip-card-a');
   const flipFront = flipCard.querySelector('.flip-front');
   const flipBack  = flipCard.querySelector('.flip-back');
@@ -1255,10 +1329,8 @@
     }
   });
 
-  /* ============ 3D PARALLAX ============ */
+  /* 3D parallax on the single circle */
   const logoStage = document.getElementById('logo-stage');
-  const logoA = logoStage.querySelector('.logo-a');
-  const logoB = logoStage.querySelector('.logo-b');
 
   logoStage.addEventListener('mousemove', (e) => {
     const rect = logoStage.getBoundingClientRect();
@@ -1266,20 +1338,20 @@
     const y = e.clientY - rect.top;
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
-    const rotateY = ((x - centerX) / centerX) * 15;
-    const rotateX = ((centerY - y) / centerY) * 15;
-    const isFlipped = logoA.classList.contains('flipped');
-    const baseY = isFlipped ? 204 : 24;
-    logoA.style.transform = `translate3d(-44px,-30px,40px) rotateY(${baseY + rotateY}deg) rotateX(${rotateX}deg) rotateZ(-6deg)`;
-    logoB.style.transform = `translate3d(44px,30px,-10px) rotateY(${-24 + rotateY}deg) rotateX(${rotateX}deg) rotateZ(6deg)`;
+    const rotateY = ((x - centerX) / centerX) * 12;
+    const rotateX = ((centerY - y) / centerY) * 12;
+    
+    const isFlipped = flipCard.classList.contains('flipped');
+    const baseY = isFlipped ? 180 : 0;
+    
+    flipCard.style.transform = `rotateY(${baseY + rotateY}deg) rotateX(${rotateX}deg)`;
   });
 
   logoStage.addEventListener('mouseleave', () => {
-    logoA.style.transform = '';
-    logoB.style.transform = '';
+    flipCard.style.transform = '';
   });
 
-  /* ============ WORK EXPERIENCE ============ */
+  /* Work experience */
   const jobs = [
     { eyebrow: "2023 — Present", title: "Senior Product Designer", company: "Company Name · City", desc: "Led end-to-end design for the core product, partnering with engineering and research to ship features used by thousands of people weekly." },
     { eyebrow: "2021 — 2023", title: "UI/UX Designer", company: "Company Name · City", desc: "Owned the design system and mentored two junior designers, reducing handoff time between design and engineering by half." },
@@ -1346,13 +1418,12 @@
 
   renderCards();
 
-  /* ============ CONTACT FORM — SENDS TO GMAIL VIA WEB3FORMS ============ */
+  /* Contact form */
   const contactForm = document.getElementById('contact-form');
   const formStatus = document.getElementById('form-status');
   const submitBtn = document.getElementById('submit-btn');
   const web3formsKey = document.getElementById('web3forms-key').value;
 
-  // Helper: open user's email client as fallback
   function openMailClient(name, email, message) {
     const subject = encodeURIComponent(`Portfolio message from ${name}`);
     const body = encodeURIComponent(`From: ${name}\nEmail: ${email}\n\n${message}`);
@@ -1372,8 +1443,6 @@
     const message = document.getElementById('message').value.trim();
     
     try {
-      console.log('📤 Sending via Web3Forms...');
-      
       const response = await fetch(WEB3FORMS_API_URL, {
         method: 'POST',
         headers: {
@@ -1393,7 +1462,6 @@
       });
       
       const result = await response.json();
-      console.log('✅ Web3Forms response:', result);
       
       if (result.success) {
         formStatus.className = 'form-status success';
@@ -1407,7 +1475,7 @@
       }
       
     } catch (error) {
-      console.error('❌ Web3Forms Error:', error);
+      console.error('Web3Forms Error:', error);
       
       formStatus.className = 'form-status error';
       formStatus.innerHTML = `
