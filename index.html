@@ -1537,7 +1537,7 @@
     jobs.forEach((job, i)=>{
       const card = document.createElement('div');
       card.className = 'work-card';
-      card.innerHTML = `<span class="eyebrow">${job.eyebrow}</span><h3>${job.title}</h3><p class="role-co">${job.company}</p><p>${job.desc}</p>`;
+      card.innerHTML = `<span class="eyebrow">${job.eyebrow}</span><h3>${job.title}</h3><p>${job.desc}</p>`;
       stage.appendChild(card);
       
       const dot = document.createElement('button');
