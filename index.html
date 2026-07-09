@@ -9,6 +9,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Special+Elite&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
 <style>
   :root{
     --bg: #E8DFD0;
@@ -236,7 +240,6 @@
   }
   .hero:not(.active) { display: none; }
 
-  /* FIXED FRONT PAGE LAYOUT */
   .hero-top{
     display: flex;
     justify-content: space-between;
@@ -318,7 +321,6 @@
     font-weight: 600;
   }
 
-  /* RIGHT SIDE: Logo + Tabs */
   .logo-tabs-wrap {
     display: flex;
     align-items: center;
@@ -1468,7 +1470,6 @@
     75%{ transform: translateX(6px); }
   }
 
-  /* VIEW MODAL - for viewing portfolio items */
   .view-modal{
     background: var(--parchment);
     border: 2px solid var(--line-dark);
@@ -1602,7 +1603,6 @@
     z-index: 2;
   }
 
-  /* UPLOAD SUCCESS MODAL */
   .upload-modal{
     background: var(--parchment);
     border: 2px solid var(--line-dark);
@@ -1934,7 +1934,7 @@
   </div>
 </div>
 
-<!-- View Modal - for viewing portfolio items -->
+<!-- View Modal -->
 <div class="modal-overlay" id="view-modal">
   <div class="view-modal">
     <div class="view-modal-header">
@@ -1946,12 +1946,8 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
       </button>
     </div>
-    <div class="view-modal-body" id="view-modal-body">
-      <!-- Content injected dynamically -->
-    </div>
-    <div class="view-modal-footer" id="view-modal-footer">
-      <!-- Actions injected dynamically -->
-    </div>
+    <div class="view-modal-body" id="view-modal-body"></div>
+    <div class="view-modal-footer" id="view-modal-footer"></div>
   </div>
 </div>
 
@@ -1989,7 +1985,6 @@
 
   <section class="hero active" id="front-page">
     <div class="hero-top">
-      <!-- LEFT SIDE: Name -->
       <div class="name-block">
         <span class="eyebrow">Portfolio · Est. 2026</span>
         <h1 class="name" id="name-title">Jericho <em>P.</em> <br>Sta. Romana</h1>
@@ -1999,7 +1994,6 @@
         </p>
       </div>
 
-      <!-- RIGHT SIDE: Logo + Tabs -->
       <div class="logo-tabs-wrap">
         <div class="logo-stage" id="logo-stage">
           <div class="logo-mark" id="flip-card-a">
@@ -2321,12 +2315,27 @@
 </div>
 
 <script>
+  // ============================================
+  // FIREBASE CONFIGURATION - REPLACE WITH YOUR OWN
+  // ============================================
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
   document.getElementById('year').textContent = new Date().getFullYear();
 
   const WEB3FORMS_API_URL = 'https://api.web3forms.com/submit';
   const YOUR_EMAIL = 'jerichopantilgan@gmail.com';
   const ADMIN_PASSCODE = '082423';
-  const STORAGE_KEY = 'portfolio_user_items';
 
   window.addEventListener('load', () => {
     setTimeout(() => {
@@ -2647,13 +2656,10 @@
     'edited-photos': 'Edited Photos'
   };
 
-  const defaultItems = [
-    
-  ];
-
   let userItems = [];
   let isAuthenticated = false;
   let activeFilter = 'all';
+  let unsubscribe = null; // For Firestore listener
 
   const portfolioGrid = document.getElementById('portfolio-grid');
   const filterBtns = document.querySelectorAll('.filter-btn');
@@ -2672,7 +2678,6 @@
   const linkField = document.getElementById('link-field');
   const itemLinkInput = document.getElementById('item-link');
 
-  // View Modal elements
   const viewModal = document.getElementById('view-modal');
   const viewModalTitle = document.getElementById('view-modal-title');
   const viewModalMeta = document.getElementById('view-modal-meta');
@@ -2680,26 +2685,53 @@
   const viewModalFooter = document.getElementById('view-modal-footer');
   const viewModalClose = document.getElementById('view-modal-close');
 
-  // Upload Modal elements
   const uploadModal = document.getElementById('upload-modal');
   const uploadModalImage = document.getElementById('upload-modal-image');
   const uploadModalClose = document.getElementById('upload-modal-close');
 
+  // ============================================
+  // FIRESTORE OPERATIONS
+  // ============================================
+  
+  // Load items from Firestore with real-time listener
   function loadUserItems() {
+    if (unsubscribe) unsubscribe();
+    
+    unsubscribe = db.collection('portfolio_items')
+      .orderBy('createdAt', 'desc')
+      .onSnapshot((snapshot) => {
+        userItems = [];
+        snapshot.forEach((doc) => {
+          userItems.push({ id: doc.id, ...doc.data() });
+        });
+        renderPortfolio();
+        if (isAuthenticated) renderAddedList();
+      }, (error) => {
+        console.error('Error loading items:', error);
+      });
+  }
+
+  // Add item to Firestore
+  async function addItemToFirestore(item) {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      userItems = stored ? JSON.parse(stored) : [];
-    } catch (e) {
-      console.error('Error loading items:', e);
-      userItems = [];
+      await db.collection('portfolio_items').add(item);
+      return true;
+    } catch (error) {
+      console.error('Error adding item:', error);
+      alert('Error adding item. Please try again.');
+      return false;
     }
   }
 
-  function saveUserItems() {
+  // Delete item from Firestore
+  async function deleteItemFromFirestore(itemId) {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(userItems));
-    } catch (e) {
-      alert('Storage limit reached. Please delete some items.');
+      await db.collection('portfolio_items').doc(itemId).delete();
+      return true;
+    } catch (error) {
+      console.error('Error deleting item:', error);
+      alert('Error deleting item. Please try again.');
+      return false;
     }
   }
 
@@ -2735,7 +2767,6 @@
     return `https://api.microlink.io/?url=${encodeURIComponent(url)}&screenshot=true&meta=false&embed=screenshot.url`;
   }
 
-  // VIEW MODAL - show portfolio item details
   function openViewModal(item) {
     viewModalTitle.textContent = item.title;
     viewModalMeta.textContent = `${categoryLabels[item.category] || item.category} · ${item.year || '—'}`;
@@ -2747,7 +2778,6 @@
     let footerHTML = '';
     
     if (isLink) {
-      // Show website in iframe
       bodyHTML = `
         <div class="view-modal-iframe-wrap">
           <iframe class="view-modal-iframe" src="${item.link}" title="${item.title}" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
@@ -2775,7 +2805,6 @@
         </button>
       `;
     } else if (hasImage) {
-      // Show image
       bodyHTML = `
         <img class="view-modal-image" src="${item.image}" alt="${item.title}">
         ${item.desc ? `<p class="view-modal-desc">${item.desc}</p>` : ''}
@@ -2803,7 +2832,6 @@
     viewModal.classList.add('active');
     document.body.style.overflow = 'hidden';
     
-    // Check if iframe loaded successfully
     if (isLink) {
       const iframe = viewModalBody.querySelector('.view-modal-iframe');
       const fallback = viewModalBody.querySelector('#iframe-fallback');
@@ -2811,29 +2839,19 @@
       
       iframe.addEventListener('load', () => {
         clearTimeout(loadTimeout);
-        try {
-          // Try to access iframe content - if blocked, show fallback
-          const test = iframe.contentWindow.location.href;
-        } catch (err) {
-          // Cross-origin is normal, but if it fails to load at all, show fallback
-        }
       });
       
       iframe.addEventListener('error', () => {
         fallback.classList.add('show');
       });
       
-      // Timeout fallback - if nothing loads in 5 seconds, show fallback option
-      loadTimeout = setTimeout(() => {
-        // Keep iframe but also show fallback link
-      }, 5000);
+      loadTimeout = setTimeout(() => {}, 5000);
     }
   }
 
   function closeViewModal() {
     viewModal.classList.remove('active');
     document.body.style.overflow = '';
-    // Clear iframe to stop loading
     const iframe = viewModalBody.querySelector('.view-modal-iframe');
     if (iframe) iframe.src = 'about:blank';
     setTimeout(() => {
@@ -2847,7 +2865,6 @@
     if (e.target === viewModal) closeViewModal();
   });
 
-  // UPLOAD MODAL - show uploaded image preview
   function openUploadModal(imageData) {
     uploadModalImage.src = imageData;
     uploadModal.classList.add('active');
@@ -2865,15 +2882,10 @@
     if (e.target === uploadModal) closeUploadModal();
   });
 
-  function getAllItems() {
-    return [...userItems, ...defaultItems];
-  }
-
   function renderPortfolio() {
     portfolioGrid.querySelectorAll('.portfolio-item').forEach(el => el.remove());
-    const allItems = getAllItems();
 
-    allItems.forEach((item, i) => {
+    userItems.forEach((item) => {
       const el = document.createElement('article');
       el.className = 'portfolio-item';
       el.dataset.category = item.category;
@@ -2919,14 +2931,12 @@
       portfolioGrid.insertBefore(el, emptyState);
     });
 
-    // Attach view button handlers
     portfolioGrid.querySelectorAll('.view-link').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
         const itemId = btn.dataset.itemId;
-        const allItems = getAllItems();
-        const item = allItems.find(i => i.id === itemId);
+        const item = userItems.find(i => i.id === itemId);
         if (item) openViewModal(item);
       });
     });
@@ -2936,9 +2946,8 @@
   }
 
   function updateCounts() {
-    const allItems = getAllItems();
-    const counts = { all: allItems.length };
-    allItems.forEach(item => {
+    const counts = { all: userItems.length };
+    userItems.forEach(item => {
       counts[item.category] = (counts[item.category] || 0) + 1;
     });
     document.getElementById('count-all').textContent = counts.all;
@@ -2993,8 +3002,8 @@
           <h5>${item.title}</h5>
           <div class="added-meta">${categoryLabels[item.category] || item.category} · ${item.year || '—'}</div>
           <div class="added-item-actions">
-            <button class="preview-btn" data-index="${index}">Preview</button>
-            <button class="delete-btn" data-index="${index}">Delete</button>
+            <button class="preview-btn" data-id="${item.id}">Preview</button>
+            <button class="delete-btn" data-id="${item.id}">Delete</button>
           </div>
         </div>
       `;
@@ -3005,22 +3014,22 @@
 
     addedItemsContainer.querySelectorAll('.preview-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        const idx = parseInt(btn.dataset.index);
-        const item = userItems[idx];
-        openViewModal(item);
+        const itemId = btn.dataset.id;
+        const item = userItems.find(i => i.id === itemId);
+        if (item) openViewModal(item);
       });
     });
 
     addedItemsContainer.querySelectorAll('.delete-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const idx = parseInt(btn.dataset.index);
-        const item = userItems[idx];
+      btn.addEventListener('click', async () => {
+        const itemId = btn.dataset.id;
+        const item = userItems.find(i => i.id === itemId);
         
         if (confirm(`Delete "${item.title}"? This cannot be undone.`)) {
-          userItems.splice(idx, 1);
-          saveUserItems();
-          renderAddedList();
-          renderPortfolio();
+          const success = await deleteItemFromFirestore(itemId);
+          if (success) {
+            // Item will be removed automatically via Firestore listener
+          }
         }
       });
     });
@@ -3154,7 +3163,6 @@
     }
 
     const newItem = {
-      id: 'user-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
       title,
       desc,
       category,
@@ -3162,36 +3170,40 @@
       image: imageUrl,
       link,
       type,
-      isDefault: false,
       createdAt: new Date().toISOString()
     };
 
-    userItems.unshift(newItem);
-    saveUserItems();
-    renderAddedList();
-    renderPortfolio();
-    addForm.reset();
-    document.getElementById('item-year').value = new Date().getFullYear();
+    submitBtn.innerHTML = '<span>Saving...</span>';
+    submitBtn.disabled = true;
+
+    const success = await addItemToFirestore(newItem);
     
-    // Show success feedback on button
-    submitBtn.innerHTML = '<span>✓ Added</span>';
-    submitBtn.style.background = 'var(--sage)';
-    
-    // Show upload modal with image preview if it was an image upload
-    if (type === 'file' && imageUrl) {
+    if (success) {
+      submitBtn.innerHTML = '<span>✓ Added</span>';
+      submitBtn.style.background = 'var(--sage)';
+      
+      if (type === 'file' && imageUrl) {
+        setTimeout(() => {
+          openUploadModal(imageUrl);
+        }, 300);
+      }
+      
       setTimeout(() => {
-        openUploadModal(imageUrl);
-      }, 300);
-    }
-    
-    setTimeout(() => {
+        submitBtn.innerHTML = originalHTML;
+        submitBtn.style.background = '';
+        submitBtn.disabled = false;
+      }, 1500);
+      
+      addForm.reset();
+      document.getElementById('item-year').value = new Date().getFullYear();
+    } else {
       submitBtn.innerHTML = originalHTML;
-      submitBtn.style.background = '';
-    }, 1500);
+      submitBtn.disabled = false;
+    }
   });
 
+  // Initialize Firestore listener
   loadUserItems();
-  renderPortfolio();
   document.getElementById('item-year').value = new Date().getFullYear();
 
   const contactForm = document.getElementById('contact-form');
@@ -3247,7 +3259,6 @@
     }
   });
 
-  // Close modals with Escape key
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       if (viewModal.classList.contains('active')) closeViewModal();
